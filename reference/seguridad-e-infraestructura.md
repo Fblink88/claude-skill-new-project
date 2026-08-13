@@ -41,6 +41,16 @@ Fuentes (2026): [Spacelift — Docker Alternatives](https://spacelift.io/blog/do
 
 **Regla general (no solo para contenedores):** no usar contenedores por defecto si el proyecto no los necesita — igual que con microservicios (bloque 6), evitar por moda o porque "es lo profesional".
 
+### Secretos en contenedores self-hosted (Docker Swarm / Kubernetes)
+
+Si el proyecto se despliega self-hosted con contenedores (no en un PaaS administrado), no usar variables de entorno para credenciales — usar el mecanismo nativo de secretos del orquestador, que las monta como **archivo**, no como variable:
+
+- **Docker Swarm** — `docker secret`: se cifra en el log interno de Swarm (Raft) en reposo, viaja cifrado entre nodos (TLS), se monta como archivo en memoria (`/run/secrets/<nombre>`), nunca aparece en `docker inspect` ni se hereda por procesos hijos. Además es **inmutable**: no se edita in-place — para rotar una credencial se crea un secret nuevo, se actualiza el servicio para que apunte a él, y recién ahí se borra el anterior. Es intencional: hace la rotación explícita y auditable.
+- **Kubernetes** — tiene su propio objeto `Secret`, también montable como archivo. **Ojo con un error común:** a diferencia de Swarm, los Secrets de Kubernetes **no vienen cifrados por defecto** — solo están codificados en base64 (que no es cifrado, es solo un formato reversible). Hay que activar explícitamente el cifrado en reposo (`encryption at rest`) para que sea equivalente en seguridad a Swarm.
+- Por qué importa evitar variables de entorno para esto: quedan visibles en `docker inspect`, las heredan procesos hijos sin pedirlo, y terminan en logs de debug/crash reports con frecuencia — el archivo montado en memoria evita las tres cosas.
+
+Fuentes (2026): [Wiz — Docker Secrets Explained](https://www.wiz.io/academy/container-security/docker-secrets), [OneUptime — Docker Secrets Management](https://oneuptime.com/blog/post/2026-01-30-docker-secrets-management/view), [GitGuardian — Secrets in Docker](https://blog.gitguardian.com/how-to-handle-secrets-in-docker/).
+
 ## Rate limiting — los dos errores comunes (anotado desde el bloque 6)
 
 1. **Rate limiting tardío:** si el rechazo ocurre dentro del código de la aplicación (después de que la conexión ya se estableció), se gasta casi todo el costo de atender la petición solo para decir que no. Ponerlo antes de que la petición llegue a la app — proxy, load balancer, API gateway o CDN.
@@ -53,6 +63,7 @@ Se aplica como default al implementar en cualquier proyecto con servidor — no 
 - **Rate limiting** — ver sección arriba.
 - **IP limiting** — distinto de rate limiting: no es "cuántas veces puede llamar alguien", es "quién tiene permitido llamar siquiera". Útil sobre todo para paneles de administración o integraciones B2B conocidas, no tiene sentido para endpoints públicos de cara al usuario final (ahí no se sabe de antemano qué IPs son legítimas).
 - **Secretos: nunca en el código ni en git.** Dónde van, según la plataforma elegida (bloque 9, pregunta 1): Vercel (Project Settings → Environment Variables), Supabase (vault de secretos / variables de entorno de Edge Functions), GitHub Actions (Settings → Secrets and variables → Actions). El archivo `.env` local siempre en `.gitignore`; dejar un `.env.example` sin valores reales como referencia para quien clone el proyecto.
+  - **Matiz importante — archivo vs. variable de entorno, no es lo mismo en todos los casos.** En un **PaaS administrado** (Vercel, Railway, Supabase), lo anterior alcanza: el proveedor ya cifra esas "variables de entorno" en su infraestructura y las inyecta de forma segura, el riesgo de exposición local no aplica igual. Pero si el proyecto es **self-hosted con contenedores** (Docker/Swarm/Kubernetes en un VPS o servidor propio, ver sección de Contenedores abajo), cualquier variable de entorno queda expuesta en `docker inspect`, la heredan procesos hijos, y puede terminar en logs — ahí los secretos deben montarse como **archivo**, no como variable de entorno (ver detalle abajo).
 - **Sanitización de inputs** — nunca confiar en lo que llega del cliente tal cual; limpiar/escapar antes de usarlo (previene XSS, inyección).
 - **Validación server-side** — toda validación que exista en el cliente (formularios, JS) debe repetirse en el servidor. La validación del cliente es para experiencia de usuario, no para seguridad — un cliente se puede manipular o saltarse.
 - **RLS (Row-Level Security)** — no es solo para multi-tenancy (bloque 8, ver `reference/auth-y-multitenancy.md`): aplica como buena práctica general en bases de datos que lo soportan (ej. PostgreSQL/Supabase), con política "deny by default" — nadie ve nada salvo que una política lo permita explícitamente, incluso en proyectos de un solo tenant.
