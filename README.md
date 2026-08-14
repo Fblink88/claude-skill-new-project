@@ -10,6 +10,10 @@ No es un formulario ni un checklist fijo: es una conversación guiada. Pregunta 
 - **`reference/*.md`** — contenido de apoyo que se carga solo cuando corresponde (heurísticas de arquitectura, stack, seguridad, identidad visual, etc.), para no sobrecargar la conversación con todo de una vez.
 - Al arrancar, además del alcance (rápido / completo / sin guía), se elige por separado: cuánto se explican las opciones antes de decidir, si los términos técnicos necesitan definirse o no (un senior no necesita que le expliquen qué es un webhook; alguien nuevo sí, aunque quiera ir rápido — son ejes distintos), el idioma, y cómo se pide aprobación durante el proceso (todo, solo lo grande, o autónomo).
 
+## Instalación
+
+Clonar (o agregar como submódulo) dentro de `.claude/skills/new-project/` en el proyecto donde se quiera usar, o en `~/.claude/skills/new-project/` para tenerla disponible en todos los proyectos.
+
 ## Los 13 bloques
 
 Ordenados por dependencia: un bloque va antes que otro solo si el segundo no se puede decidir bien sin la respuesta del primero. Acá va qué busca resolver cada uno y qué conceptos técnicos toca, para que quede claro de entrada qué se va a cubrir.
@@ -36,7 +40,3 @@ Ordenados por dependencia: un bloque va antes que otro solo si el segundo no se 
 13. **Producción y operación** — se activa al ir a lanzar de verdad: checklist de producción, respaldos con su procedimiento de restauración probado (no basta con que existan), plan de rollback, observabilidad mínima.
 
 Documentación viva (`DOC/plan.md`, `DOC/decisiones.md`, `DOC/modelo-datos.md`, `DOC/glosario.md`, `DOC/riesgos.md`, entre otros) y guardrails de IA (`CLAUDE.md`) corren en paralelo desde el bloque 1, no son un bloque aparte.
-
-## Instalación
-
-Clonar (o agregar como submódulo) dentro de `.claude/skills/new-project/` en el proyecto donde se quiera usar, o en `~/.claude/skills/new-project/` para tenerla disponible en todos los proyectos.
