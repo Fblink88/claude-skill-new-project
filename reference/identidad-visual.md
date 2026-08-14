@@ -77,6 +77,13 @@ ANIMACIONES — nivel (ninguna/mínima/moderada/expresiva)
 
 Fuentes (2026): [PkgPulse — Lucide vs Heroicons vs Phosphor](https://www.pkgpulse.com/guides/lucide-vs-heroicons-vs-phosphor-react-icon-libraries-2026), [Mantlr — Open Source Icon Libraries](https://mantlr.com/blog/best-open-source-icon-libraries-compared).
 
+## Skills de diseño instalables (ejemplos concretos, ya usados y validados por el usuario)
+
+Si están disponibles en el entorno, se pueden usar en vez de (o junto con) las heurísticas de este documento:
+
+- **`emilkowalski/skill`** — colección de varias skills de diseño/animación: `animation-vocabulary` (vocabulario de animación), `apple-design` (estilo Apple), `emil-design-eng`, `find-animation-opportunities`, `improve-animations`, `pick-ui-library` (elegir librería de componentes), `review-animations`. De Emil Kowalski, conocido en la comunidad de design engineering.
+- **`meodai/skill.color-expert`** — asistencia especializada en paletas de color.
+
 ## Librerías/sistemas de componentes (gratis salvo que se indique lo contrario)
 
 - **shadcn/ui** — gratis, código que se copia al proyecto (no es una dependencia externa tradicional, se "posee" el código). Default recomendado para proyectos nuevos con React + Tailwind.
