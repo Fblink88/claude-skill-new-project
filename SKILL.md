@@ -68,7 +68,8 @@ No es un bloque numerado — se activa justo después del bloque 1 (si el modo e
   - **`DOC/cambios-del-plan.md` — formato de cada entrada:** fecha, quién lo pidió, archivo(s) afectado(s), qué se pidió exactamente, qué se implementó, y el motivo — no basta con anotar "se cambió X", hay que poder responder por qué después.
   - **Patrones de decisión repetidos:** si el usuario resuelve una misma disyuntiva de la misma forma varias veces (ej. siempre prioriza alcance completo sobre plazo, o siempre prefiere una opción sobre otra ante un mismo tipo de trade-off), documentarlo explícitamente en `DOC/plan.md` o `CLAUDE.md` como criterio ya establecido — no volver a plantear la alternativa descartada como si fuera nueva cada vez.
 - `DOC/decisiones.md` (ADR) — se llena automáticamente cada vez que se use el formato "propuesta razonada + confirmar" en cualquier bloque (arquitectura, stack, multi-tenancy, hosting): decisión, alternativas descartadas, motivo, consecuencias. No hace falta pedirlo aparte, es un subproducto de ese formato. Para decisiones de menor impacto que no ameritan ese formato completo, alcanza una entrada liviana de una línea: "Decisión | Razón".
-- `DOC/modelo-datos.md` (MER) — el modelo de entidades y relaciones del bloque 4, persistido como documento, no solo en la conversación.
+- `DOC/modelo-datos.md` (MER) y `DOC/glosario.md` (vocabulario del dominio, un término = un significado) — del bloque 4, persistidos como documento, no solo en la conversación.
+- `DOC/arquitectura.md` — diagrama C4 (Context + Container, en Mermaid) del bloque 6, solo si hay servidor.
 - `DOC/pruebas-manuales.md`, `DOC/definition-of-done.md`, `DOC/plan-de-pruebas.md`, `DOC/casos-de-prueba.md` — se crean recién al activarse el bloque 12 (testing), no en el kickoff. Ver ese bloque para el detalle de cada uno.
 - `DOC/riesgos.md` — se crea al cierre del kickoff, agregando señales de riesgo ya levantadas en otros bloques (vendor lock-in, datos sensibles, etc.), no con preguntas nuevas.
 - `DOC/comandos.md` — cómo instalar dependencias, correr en local, correr tests, hacer build. Lo lee el programador directamente (no solo Claude), por eso es su propio archivo y no una sección dentro de `CLAUDE.md` — `CLAUDE.md` solo lo referencia.
@@ -159,6 +160,8 @@ Aplica la regla de callback (roles/cosas ya mencionadas en bloques 2-3 son candi
 
 **Persistencia y regla de mantenimiento:** el resultado de este bloque se guarda en `DOC/modelo-datos.md` (MER), no solo en la conversación. Regla permanente para `CLAUDE.md`: cada vez que una migración cree o modifique una tabla, actualizar `DOC/modelo-datos.md` en el mismo cambio — nunca después ni acumulando varias migraciones sin reflejarlas. Un modelo desincronizado de la base real deja de servir.
 
+**Glosario de dominio (`DOC/glosario.md`).** Distinto del modelo de entidades: acá se registra el *vocabulario* — una palabra, un significado, siempre. Si durante la conversación aparecen dos términos que podrían significar lo mismo (ej. "activo" y "vigente" usados para lo mismo) o un término ambiguo, no asumir cuál es el correcto — preguntar cuál usar y fijarlo en el glosario. Regla permanente para `CLAUDE.md`: antes de introducir un nombre nuevo para algo que ya tiene término en el glosario, usar el término existente, no inventar un sinónimo. Sin este registro, es común que el código y la conversación terminen usando varios nombres distintos para la misma cosa.
+
 ## Bloque 5 — Datos sensibles y legal
 
 **Bloqueante, siempre — sin excepción, ni siquiera en modo rápido:**
@@ -192,6 +195,8 @@ Lee `reference/arquitectura.md` antes de este bloque — tiene el razonamiento c
 
 4. "¿Tienes preferencia de paradigma (orientado a objetos, funcional, mixto), o prefieres que lo sugiera según el lenguaje que elijamos en el siguiente bloque?"
 5. "¿Definimos ahora una separación básica de capas (interfaz, lógica de negocio, acceso a datos), o prefieres que se resuelva según el framework que elijamos?"
+
+**Diagrama de arquitectura (C4, niveles Context + Container).** Con la arquitectura ya decidida (preguntas 1-3), producir un diagrama Mermaid de dos niveles y guardarlo en `DOC/arquitectura.md`: **Context** (el sistema como caja negra: quién lo usa, con qué sistemas externos habla) y **Container** (cómo se parte en piezas desplegables — frontend, backend, base de datos — y cómo se comunican). No usar niveles Component/Code de C4, son demasiado detalle para esta etapa. Se omite si no hay servidor (bloque 6, compuerta) — un diagrama de contenedores no aporta nada a una app local de un solo proceso.
 
 Nota de alcance: "dónde" vive el servidor (nube, VPS, servidor propio) no se decide acá — eso es bloque 9.
 
