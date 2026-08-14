@@ -33,6 +33,11 @@ Pregunta en un mismo paso:
    - **Todo con aprobación** — cada decisión, paso a paso.
    - **Solo decisiones grandes o costosas de revertir** (default si no se pregunta) — arquitectura, producción, borrar datos, pagos. El resto avanza sin pausas.
    - **Autónomo** — avisar solo al final de cada bloque, no interrumpir dentro de él.
+5. **Nivel de tecnicismo** — distinto de la verbosidad (2): esto es si los *términos técnicos* necesitan definición, no cuánto se explican las opciones. "¿Necesitas que defina los términos técnicos que use (ej. qué es un webhook, qué es RLS), o los puedo usar directo?"
+   - **Explicar siempre** — definir cualquier término técnico la primera vez que aparece.
+   - **Solo lo poco común** — lo básico no se explica, solo jerga específica o poco frecuente.
+   - **Sin explicar** — asume experiencia previa de programación, usar los términos directo.
+   Un senior puede querer poca explicación de tradeoffs (modo directo) pero igual que no se le defina jerga sin pedirlo; alguien nuevo puede querer avanzar rápido pero necesitar que los términos se aclaren. No asumir uno en función del otro.
 
 Si eligió "sin guía de decisiones", antes de preguntar (2) y (3), pregunta aparte:
 
