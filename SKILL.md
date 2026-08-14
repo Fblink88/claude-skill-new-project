@@ -1,6 +1,6 @@
 ---
 name: new-project
-description: Guía de descubrimiento conversada, estilo spec-driven development, para arrancar un proyecto de software nuevo — o retomar uno existente — antes de escribir código. Ayuda a decidir, en orden de dependencia: producto y alcance (problema, usuarios, plataforma, tamaño, MVP, funcionalidades, reglas de negocio, requisitos testeables cuando hace falta trazabilidad), modelo del dominio (entidades y relaciones, persistido y sincronizado con las migraciones), datos sensibles y aspectos legales (incluye inventario de datos y registro de actividades de tratamiento si el país lo exige), arquitectura (monolito, monolito modular o distribuido) y paradigma, stack técnico (lenguaje, framework, base de datos), autenticación/autorización/multi-tenancy, seguridad e infraestructura (hosting, secretos, checklist de seguridad mínima), git/ambientes/CI-CD/convenciones de código/metodología de trabajo (Scrum, Kanban u ninguna), identidad visual y UX/UI, desglose del plan en tareas/sprints con gestión de riesgos, y —ya en implementación— testing (plan de pruebas, casos de prueba con registro de errores, no solo su solución) y checklist de producción (backups con procedimiento de restauración, rollback, observabilidad). Pregunta solo lo que bloquea decisiones importantes según el tamaño del proyecto, deja elegir el modo de aprobación (todo/solo lo grande/autónomo), explica opciones y tradeoffs antes de decidir, y deja todo documentado en DOC/. Úsala cuando el usuario quiera empezar un proyecto de software desde cero, decidir cómo seguir uno ya en marcha, o pedir ayuda para elegir arquitectura/stack/tecnología antes de programar.
+description: Guía de descubrimiento conversada, estilo spec-driven development, para arrancar un proyecto de software nuevo o retomar uno existente antes de escribir código. Ayuda a decidir, en orden de dependencia: producto y alcance (problema, usuarios, plataforma, MVP, reglas de negocio), modelo del dominio, datos sensibles y legal, arquitectura y paradigma, stack técnico, auth y multi-tenancy, seguridad e infraestructura, git/CI-CD/convenciones/metodología, identidad visual y UX/UI, desglose en tareas con gestión de riesgos, y ya en implementación: testing y checklist de producción (backups, rollback, observabilidad). Pregunta solo lo que bloquea decisiones importantes según el tamaño del proyecto, deja elegir el modo de aprobación, explica tradeoffs antes de decidir, y documenta todo en DOC/. Úsala para empezar un proyecto desde cero, decidir cómo seguir uno en marcha, o elegir arquitectura/stack antes de programar.
 ---
 
 <!-- Contenido en construcción, se completa en conversación con el autor. Ver DOC/plan-creacion-skill.md para el mapa de dependencias completo (13 bloques) y las decisiones de diseño detrás de este bloque 1. -->
@@ -90,7 +90,7 @@ No es un bloque numerado — se activa justo después del bloque 1 (si el modo e
 - **Guardrails de disciplina de alcance** (categoría distinta a la anterior — no son acciones que requieren aprobación, son límites de comportamiento siempre activos): nunca inventar nombres de rutas/tablas/columnas que no estén documentados en `DOC/modelo-datos.md` o el código; nunca sugerir cambiar el stack ya confirmado (bloque 7) sin justificación explícita; nunca agregar una dependencia nueva sin que resuelva una necesidad concreta del plan.
 - `CLAUDE.md` se genera/actualiza al cerrar el bloque 11, con estos guardrails, referencias a `DOC/comandos.md` y `DOC/faq.md` (si existen), y lo ya decidido en el bloque 10 (quién hace los commits, mención de IA en commits).
 - **Si hay más de una persona (bloque 10) y no todas usan Claude Code:** `CLAUDE.md` debe quedar utilizable por cualquier asistente de IA (Claude, ChatGPT, Gemini, Copilot), no dar por hecho que todos en el equipo usan la misma herramienta — indicar en el propio documento cómo usarlo con cada una (ej. pegar su contenido al inicio de la conversación si la herramienta no lo carga automático).
-- **Cuando se corrige un bug de un patrón ya documentado** (ej. en `DOC/plan.md`, `reference/*.md`, o un patrón de código de referencia): reflejar la corrección directamente en la documentación del patrón, no solo registrarla en `DOC/errores-y-arreglos.md` — así queda imposible repetir el mismo error por seguir la referencia desactualizada.
+- **Cuando se corrige un bug de un patrón ya documentado** (ej. en `DOC/plan.md`, `references/*.md`, o un patrón de código de referencia): reflejar la corrección directamente en la documentación del patrón, no solo registrarla en `DOC/errores-y-arreglos.md` — así queda imposible repetir el mismo error por seguir la referencia desactualizada.
 
 ## Bloque 2 — Producto y contexto
 
@@ -188,12 +188,12 @@ Nota de terminología, proyectos de salud: usar "usuario", no "paciente", al ref
 
 ## Bloque 6 — Arquitectura y paradigma
 
-Lee `reference/arquitectura.md` antes de este bloque — tiene el razonamiento completo (qué es monolito/monolito modular/distribuido, heurística, por qué un monolito modular escala, cómo manejar pedidos de microservicios por moda).
+Lee `references/arquitectura.md` antes de este bloque — tiene el razonamiento completo (qué es monolito/monolito modular/distribuido, heurística, por qué un monolito modular escala, cómo manejar pedidos de microservicios por moda).
 
 **Bloqueantes:**
 
 1. **Compuerta — ¿hay servidor?** Infiere del tipo de plataforma (bloque 2: CLI/Escritorio sin backend → probablemente no; Web/PWA/API → probablemente sí) y confirma con el usuario, no asumas en silencio. Si no hay servidor, se omite la pregunta 2 completa — no aplica.
-2. **Monolito / monolito modular / distribuido** (solo si hay servidor). Propone según la heurística de `reference/arquitectura.md`, explica por qué, qué alternativa descartó, y pregunta si el usuario está de acuerdo o quiere otra cosa.
+2. **Monolito / monolito modular / distribuido** (solo si hay servidor). Propone según la heurística de `references/arquitectura.md`, explica por qué, qué alternativa descartó, y pregunta si el usuario está de acuerdo o quiere otra cosa.
 3. **Frontend/backend.** Se omite si la plataforma ya lo hace evidente (CLI, API/backend puro). Para el resto: "¿Frontend y backend separados (dos proyectos, se comunican por API) o integrados (un solo proyecto)? Separado da más flexibilidad después, pero suma complejidad desde el día uno. Para tu tamaño, sugiero integrado — ¿de acuerdo, o prefieres separarlos?"
 
 **Completo — con opción de diferir al bloque 7:**
@@ -207,7 +207,7 @@ Nota de alcance: "dónde" vive el servidor (nube, VPS, servidor propio) no se de
 
 ## Bloque 7 — Stack técnico
 
-Lee `reference/stack-y-datos.md` antes de este bloque — tiene la heurística completa de lenguaje/framework y tipo de base de datos, y el principio de estable-vs-nuevo.
+Lee `references/stack-y-datos.md` antes de este bloque — tiene la heurística completa de lenguaje/framework y tipo de base de datos, y el principio de estable-vs-nuevo.
 
 **Bloqueantes:**
 
@@ -221,7 +221,7 @@ Lee `reference/stack-y-datos.md` antes de este bloque — tiene la heurística c
 
 ## Bloque 8 — Auth, autorización y multi-tenancy
 
-Lee `reference/auth-y-multitenancy.md` antes de la pregunta 5 — tiene las cuatro estrategias de aislamiento multi-tenant y la heurística completa.
+Lee `references/auth-y-multitenancy.md` antes de la pregunta 5 — tiene las cuatro estrategias de aislamiento multi-tenant y la heurística completa.
 
 **Bloqueantes:**
 
@@ -231,13 +231,13 @@ Lee `reference/auth-y-multitenancy.md` antes de la pregunta 5 — tiene las cuat
 4. **Compuerta multi-tenancy**, con callback a "sede" u organización si se mencionó en el bloque 4: "¿Los datos de una sede deben estar completamente separados e invisibles para otra, o es un mismo conjunto de datos visible según el rol de cada quien?" Si la respuesta es que sí deben estar separados y además el bloque 3 marcó "pagos o cobros" con modelo de suscripción, mencionar la conexión: "esto es justo lo que técnicamente se conoce como un SaaS multi-tenant."
 
 **Completo:**
-5. Si multi-tenancy = sí: propuesta razonada de aislamiento (ver `reference/auth-y-multitenancy.md`) según cantidad esperada de organizaciones y sensibilidad de los datos (bloque 5).
+5. Si multi-tenancy = sí: propuesta razonada de aislamiento (ver `references/auth-y-multitenancy.md`) según cantidad esperada de organizaciones y sensibilidad de los datos (bloque 5).
 6. Detalles finos de sesión (expiración, recuperación de contraseña, cierre de sesión, MFA) — solo si hay auth.
 7. RBAC/ABAC formal, si los roles de la pregunta 3 resultan complejos.
 
 ## Bloque 9 — Seguridad e infraestructura
 
-Lee `reference/seguridad-e-infraestructura.md` antes de este bloque — tiene la heurística de hosting/presupuesto, las alternativas a Docker, el detalle de rate limiting y la nota de vendor lock-in.
+Lee `references/seguridad-e-infraestructura.md` antes de este bloque — tiene la heurística de hosting/presupuesto, las alternativas a Docker, el detalle de rate limiting y la nota de vendor lock-in.
 
 **Bloqueantes (solo si hay servidor, compuerta del bloque 6):**
 
@@ -254,11 +254,11 @@ Lee `reference/seguridad-e-infraestructura.md` antes de este bloque — tiene la
 7. Threat modeling formal (STRIDE) — nota: casi nunca aplica, solo proyectos con datos muy sensibles (bloque 5) o escala grande. Si aplica, mencionar como opción la herramienta Strix (agente autónomo de pentesting, valida vulnerabilidades con pruebas de concepto reales) — sugerencia opcional, no obligatoria.
 7.5. **Solo si el producto en sí usa IA con varios agentes/subagentes para tareas distintas:** "¿quieres definir qué modelo usa cada uno (ej. uno más barato para generación simple, uno más capaz para razonamiento complejo)?" Documentarlo en tabla en `DOC/decisiones.md`, con la regla "no cambiar sin justificación explícita" — evita tanto gastar de más como perder calidad.
 7.6. **Solo si el uso de IA del producto debe limitarse por usuario o plan** (créditos, tokens): el descuento se hace **antes** de ejecutar la llamada a la IA, con un límite duro (ej. HTTP 429) si no alcanza — nunca confiar en un chequeo posterior a que ya se gastó.
-8. **Checklist de seguridad mínima** — nota para Claude, no pregunta uno por uno, pero verificar que se cumpla al implementar (ver `reference/seguridad-e-infraestructura.md` para el detalle de cada punto): rate limiting, IP limiting donde corresponda, secretos fuera del código, sanitización de inputs, validación server-side (nunca confiar solo en la del cliente), RLS con deny-by-default (aplica aunque no haya multi-tenancy), cifrado en tránsito (HTTPS siempre) y en reposo para datos sensibles, sesiones con expiración, y CORS configurado explícitamente (nunca `*` en producción para endpoints con datos de usuarios).
+8. **Checklist de seguridad mínima** — nota para Claude, no pregunta uno por uno, pero verificar que se cumpla al implementar (ver `references/seguridad-e-infraestructura.md` para el detalle de cada punto): rate limiting, IP limiting donde corresponda, secretos fuera del código, sanitización de inputs, validación server-side (nunca confiar solo en la del cliente), RLS con deny-by-default (aplica aunque no haya multi-tenancy), cifrado en tránsito (HTTPS siempre) y en reposo para datos sensibles, sesiones con expiración, y CORS configurado explícitamente (nunca `*` en producción para endpoints con datos de usuarios).
 
 ## Bloque 10 — Git, ambientes, CI/CD, convenciones de código
 
-Lee `reference/git-y-cicd.md` antes de este bloque — tiene la comparación GitHub vs. GitLab y las herramientas de CI/CD.
+Lee `references/git-y-cicd.md` antes de este bloque — tiene la comparación GitHub vs. GitLab y las herramientas de CI/CD.
 
 **Bloqueantes:**
 1. "¿Cuántas personas van a trabajar en este proyecto (contándote a ti)?"
@@ -278,7 +278,7 @@ Lee `reference/git-y-cicd.md` antes de este bloque — tiene la comparación Git
 
 ## Bloque 11 — UX/UI
 
-Lee `reference/identidad-visual.md` antes de este bloque — tiene el glosario de estilos, las preguntas guiadas para quien no tiene idea, la matriz visual, y las librerías de iconos/componentes.
+Lee `references/identidad-visual.md` antes de este bloque — tiene el glosario de estilos, las preguntas guiadas para quien no tiene idea, la matriz visual, y las librerías de iconos/componentes.
 
 **Bloqueante (solo si la plataforma tiene interfaz visual — se omite para CLI y API/backend puro):**
 1. "¿Necesita funcionar bien en distintos tamaños de pantalla (celular, tablet, escritorio), o se va a usar siempre en un solo tipo de dispositivo?"
@@ -310,7 +310,7 @@ Lee `reference/identidad-visual.md` antes de este bloque — tiene el glosario d
 
 ## Bloque 12 — Testing (no es kickoff — se activa al empezar a implementar)
 
-Lee `reference/testing.md` antes de este bloque — tiene la pirámide de testing, qué hace bueno a un test, y la heurística de ubicación/formato.
+Lee `references/testing.md` antes de este bloque — tiene la pirámide de testing, qué hace bueno a un test, y la heurística de ubicación/formato.
 
 **Disparador:** ofrecerlo proactivamente cuando se esté por escribir la primera funcionalidad real (no scaffolding), o si el usuario lo pide antes.
 

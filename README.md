@@ -7,12 +7,32 @@ No es un formulario ni un checklist fijo: es una conversación guiada. Pregunta 
 ## Cómo funciona
 
 - **`SKILL.md`** orquesta el flujo completo: 13 bloques de decisiones ordenados por dependencia (no se pregunta por base de datos antes de saber qué datos maneja el sistema, por ejemplo), más un tema transversal de documentación viva y guardrails de IA.
-- **`reference/*.md`** — contenido de apoyo que se carga solo cuando corresponde (heurísticas de arquitectura, stack, seguridad, identidad visual, etc.), para no sobrecargar la conversación con todo de una vez.
+- **`references/*.md`** — contenido de apoyo que se carga solo cuando corresponde (heurísticas de arquitectura, stack, seguridad, identidad visual, etc.), para no sobrecargar la conversación con todo de una vez.
 - Al arrancar, además del alcance (rápido / completo / sin guía), se elige por separado: cuánto se explican las opciones antes de decidir, si los términos técnicos necesitan definirse o no (un senior no necesita que le expliquen qué es un webhook; alguien nuevo sí, aunque quiera ir rápido — son ejes distintos), el idioma, y cómo se pide aprobación durante el proceso (todo, solo lo grande, o autónomo).
 
-## Instalación
+## Instalación y uso
 
-Clonar (o agregar como submódulo) dentro de `.claude/skills/new-project/` en el proyecto donde se quiera usar, o en `~/.claude/skills/new-project/` para tenerla disponible en todos los proyectos.
+### Con Claude Code
+
+Clonar (o agregar como submódulo) dentro de `.claude/skills/new-project/` en el proyecto donde se quiera usar, o en `~/.claude/skills/new-project/` para tenerla disponible en todos los proyectos. Claude Code la activa solo cuando la conversación calza con la `description` del frontmatter de `SKILL.md` — no hace falta invocarla a mano, aunque también se puede pedir explícito ("usa la skill new-project").
+
+### Con cualquier otro IDE o agente
+
+Esta skill sigue el estándar abierto [Agent Skills](https://agentskills.io) (mismo formato: `SKILL.md` con frontmatter + carpeta de referencias cargada bajo demanda), publicado por Anthropic en diciembre de 2025 y ya soportado por decenas de herramientas — Cursor, Codex CLI, Gemini CLI, Google Antigravity, GitHub Copilot, JetBrains, VS Code, entre otras. Lo único que cambia entre herramientas es *dónde* esperan encontrar la carpeta:
+
+| Herramienta | Ruta |
+|---|---|
+| Claude Code | `.claude/skills/new-project/` |
+| Codex CLI, Gemini CLI, Antigravity, OpenCode | `.agents/skills/new-project/` |
+| Cursor, VS Code/Copilot, JetBrains, otras | revisa la doc de cada una — la mayoría converge en `.agents/skills/`, pero conviene confirmar |
+
+Clonar (o agregar como submódulo) este repo dentro de la carpeta que corresponda, con el nombre `new-project`.
+
+**Si tu herramienta no tiene soporte nativo de skills:** copia el contenido de `SKILL.md` y pégalo directo en el chat del agente al arrancar un proyecto, pidiéndole que lo siga paso a paso. Al ser markdown plano sin nada específico de Claude, funciona igual en cualquier lado — solo se pierde la activación automática por descripción.
+
+### Uso
+
+Independiente del IDE, la conversación es la misma: se activa (sola o a mano), pregunta primero si el proyecto es nuevo o existente, y de ahí sigue el flujo descrito en "Los 13 bloques" más abajo, dejando todo documentado en `DOC/`.
 
 ## Los 13 bloques
 
