@@ -8,7 +8,10 @@ import os
 import re
 import sys
 
-TARGET = "REPO_ROOT/SKILL.md"
+# Repo root = two levels up from .claude/hooks/ — resuelto por ubicación del
+# script, no hardcodeado, para no filtrar la ruta/usuario local en el repo público.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+TARGET = os.path.join(REPO_ROOT, "SKILL.md")
 MAX_DESC = 1024
 NAME_RE = re.compile(r"^[a-z0-9-]{1,64}$")
 RESERVED = ("anthropic", "claude")

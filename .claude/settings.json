@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 REPO_ROOT/.claude/hooks/validate-skill-md.py",
+            "command": "python3 .claude/hooks/validate-skill-md.py",
             "timeout": 10,
             "statusMessage": "Validando SKILL.md contra el spec Agent Skills..."
           }
