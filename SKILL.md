@@ -20,7 +20,7 @@ Antes de cualquier otra cosa, pregunta:
 Pregunta en un mismo paso:
 
 1. **Alcance:**
-   - **Modo completo** — Recorremos: producto y contexto, alcance, modelo del dominio, datos sensibles y legal, arquitectura, stack técnico, auth, seguridad e infraestructura, git/CI/CD, UX/UI.
+   - **Modo completo** — Recorremos: producto y contexto, alcance, modelo del dominio, datos sensibles y legal, arquitectura, stack técnico, auth, seguridad e infraestructura, git/CI/CD, UX/UI. El tamaño del proyecto (bloque 2) sigue filtrando qué preguntas de cada bloque aplican — "completo" es profundidad dentro de lo relevante para ese tamaño, no todas las preguntas sin filtro (ver notas de "se omite si tamaño..." en los bloques correspondientes).
    - **Modo rápido** — Solo lo que bloquea decisiones importantes: qué se construye, país y datos sensibles, arquitectura de alto nivel, stack.
    - **Sin guía de decisiones** — no recorremos bloques.
 2. **Verbosidad:**
@@ -58,6 +58,16 @@ No investigues el código todavía. Pregunta primero:
 
 Con esas respuestas — y esa documentación si existe — ubica en qué bloques del mapa de dependencias el proyecto ya tiene resuelto y cuáles quedan abiertos, y continúa el flujo desde ahí, sin repetir bloques ya resueltos.
 
+**Cómo se hace el mapeo:** recorre los 13 bloques en silencio (no uno por uno en voz alta) y clasifica cada uno en cuatro estados, según lo que ya dijo el usuario y la documentación existente:
+- **Resuelto** — se infiere con confianza de lo dicho o de la documentación.
+- **Parcial** — hay algo, pero falta un dato bloqueante puntual de ese bloque.
+- **Abierto** — sin señal, se trata como un bloque de proyecto nuevo.
+- **Cambiar** — el usuario indica que quiere revisar una decisión ya tomada (no solo llenar un vacío, ej. "antes era monolito, ahora queremos separarlo").
+
+Antes de continuar, presenta un resumen corto — nunca asumas en silencio: "Por lo que me contaste, esto ya está resuelto: [lista]. Esto queda parcial o abierto: [lista]. Esto quieres cambiarlo: [lista, si aplica]. ¿Coincide, o hay algo resuelto que no mencioné?" Recién con esa confirmación, sigue el flujo: salta lo resuelto, entra a lo parcial/abierto solo con la pregunta puntual que falta, y para lo marcado "cambiar" registra el delta (decisión anterior → decisión nueva → motivo) en `DOC/cambios-del-plan.md`, con el mismo formato que ya usa ese archivo — no se crea un documento nuevo aparte.
+
+**Excepción — bloque 5 (datos sensibles y legal) nunca se marca "resuelto" solo por inferencia:** por ser bloqueante siempre, incluso en modo rápido, se reconfirma explícito (al menos país/regulación y tipos de datos sensibles) aunque el usuario diga que ya lo tiene resuelto.
+
 Si de todas formas hace falta investigar código porque el usuario no tiene claridad, guarda lo investigado en un documento persistente (`DOC/` o `CLAUDE.md`) para no repetir la investigación en sesiones futuras. Si el usuario tiene el plugin oficial `claude-code-setup` disponible, mencionarlo como complemento opcional (analiza el proyecto de solo lectura y sugiere MCP/skills/hooks/subagentes) — no es obligatorio, es una sugerencia.
 
 Pregunta verbosidad e idioma igual que en el caso "nuevo", salvo que ya consten en documentación existente.
@@ -67,7 +77,7 @@ Pregunta verbosidad e idioma igual que en el caso "nuevo", salvo que ya consten 
 No es un bloque numerado — se activa justo después del bloque 1 (si el modo elegido no fue "nada"), no al final.
 
 **Estructura de `DOC/` a crear (flat, sin subcarpetas por categoría):**
-- `DOC/plan.md` — el plan vivo del proyecto, se llena bloque por bloque con las decisiones tomadas a medida que se avanza. Funciona como el equivalente al PRD del proyecto — no se genera un documento separado para eso, sería duplicar lo mismo.
+- `DOC/plan.md` — el plan vivo del proyecto, se llena bloque por bloque con las decisiones tomadas a medida que se avanza. Funciona como el equivalente al PRD del proyecto — no se genera un documento separado para eso, sería duplicar lo mismo. Si el usuario quiere una red de seguridad automática adicional entre sesiones (compresión + búsqueda semántica), se puede mencionar claude-mem como complemento — `DOC/plan.md` sigue siendo el registro oficial curado y legible, claude-mem no lo reemplaza — sugerencia opcional, no obligatoria.
 - `DOC/avances.md`, `DOC/errores-y-arreglos.md`, `DOC/cambios-del-plan.md` — bitácoras para la fase de implementación (se empiezan a usar ahí, no durante el descubrimiento). Si hay más de una persona trabajando (bloque 10), dividir estas tres por persona (ej. `DOC/avances-[nombre].md`) en vez de un archivo compartido único — evita que un solo archivo crezca sin control.
   - **`DOC/errores-y-arreglos.md` — regla de deduplicación:** si un error es del mismo tipo que uno ya registrado, no crear una entrada nueva — agregar una ocurrencia numerada (fecha + qué se estaba haciendo) a la entrada existente. Permite ver cuántas veces se repite el mismo error en vez de fragmentar el historial.
   - **`DOC/cambios-del-plan.md` — formato de cada entrada:** fecha, quién lo pidió, archivo(s) afectado(s), qué se pidió exactamente, qué se implementó, y el motivo — no basta con anotar "se cambió X", hay que poder responder por qué después.
@@ -89,8 +99,19 @@ No es un bloque numerado — se activa justo después del bloque 1 (si el modo e
 - Preguntar temprano, junto al bloque 1: "¿Hay algo que la IA nunca debería hacer sin tu aprobación explícita en este proyecto? (ej. tocar producción, eliminar datos, hacer pagos reales, enviar correos reales a usuarios)." Default si no responde: producción y eliminación de datos siempre piden aprobación.
 - **Guardrails de disciplina de alcance** (categoría distinta a la anterior — no son acciones que requieren aprobación, son límites de comportamiento siempre activos): nunca inventar nombres de rutas/tablas/columnas que no estén documentados en `DOC/modelo-datos.md` o el código; nunca sugerir cambiar el stack ya confirmado (bloque 7) sin justificación explícita; nunca agregar una dependencia nueva sin que resuelva una necesidad concreta del plan.
 - `CLAUDE.md` se genera/actualiza al cerrar el bloque 11, con estos guardrails, referencias a `DOC/comandos.md` y `DOC/faq.md` (si existen), y lo ya decidido en el bloque 10 (quién hace los commits, mención de IA en commits).
-- **Si hay más de una persona (bloque 10) y no todas usan Claude Code:** `CLAUDE.md` debe quedar utilizable por cualquier asistente de IA (Claude, ChatGPT, Gemini, Copilot), no dar por hecho que todos en el equipo usan la misma herramienta — indicar en el propio documento cómo usarlo con cada una (ej. pegar su contenido al inicio de la conversación si la herramienta no lo carga automático).
+- **Según la respuesta del bloque 10 (pregunta 1.6):** si todos usan Claude Code, se genera solo `CLAUDE.md`. Si hay quienes usan otra herramienta de IA (Cursor, Antigravity, Copilot, Gemini CLI, etc.), los guardrails se escriben en `AGENTS.md` (el estándar que leen nativamente la mayoría de esas herramientas) y `CLAUDE.md` queda como puntero corto ("ver `AGENTS.md`, Claude Code no lo lee de forma nativa todavía") en vez de duplicar contenido.
 - **Cuando se corrige un bug de un patrón ya documentado** (ej. en `DOC/plan.md`, `references/*.md`, o un patrón de código de referencia): reflejar la corrección directamente en la documentación del patrón, no solo registrarla en `DOC/errores-y-arreglos.md` — así queda imposible repetir el mismo error por seguir la referencia desactualizada.
+
+**Pregunta de cierre — hooks como aplicación automática (no solo prompt):** al generar `CLAUDE.md`/`AGENTS.md`, antes de preguntar, explica qué es un hook y por qué importa — ajustado a los ejes del bloque 1 (verbosidad y nivel de tecnicismo), igual que cualquier otro término técnico de la skill:
+- **Modo aprendizaje, o nivel de tecnicismo "explicar siempre"/"solo lo poco común"** (un hook no es jerga común): explicar antes de preguntar, por ejemplo — "Un hook es una regla de Claude Code que se ejecuta sola en un momento específico (ej. antes de guardar un archivo, antes de un commit) y puede bloquear la acción si no se cumple. Es distinto de escribirlo en `CLAUDE.md`/`AGENTS.md`: eso es una instrucción que la IA sigue, pero podría olvidar en una conversación larga; el hook se aplica siempre, sin depender de que la IA se acuerde."
+- **Modo directo con tecnicismo "sin explicar":** saltar la explicación, ir directo a la pregunta.
+
+Pregunta: "¿Quieres que además configure hooks que apliquen estas reglas en automático (ej. bloquear comandos peligrosos, escanear secretos antes de un commit), o prefieres que quede solo como instrucción para la IA?" Si acepta, configurar (vía la skill `update-config`) los hooks cuyos datos ya están disponibles en este punto, filtrando por tamaño (bloque 2) donde corresponda:
+- Bloque 1 (acciones que requieren aprobación) → hook `PreToolUse` que bloquea comandos peligrosos (`DROP TABLE`, `rm -rf`, deploy a producción) — siempre, sin filtro por tamaño.
+- Bloque 9 (secretos nunca en el código) → hook que escanea archivos staged buscando patrones de API keys/tokens antes de permitir el commit — siempre.
+- Bloque 9 (checklist de seguridad mínima, ej. CORS en producción) → hook de lint antes de un comando de deploy — se omite si tamaño = "uso personal o uso ocasional".
+- Bloque 10 (formato de commit) → hook que valida el mensaje antes de dejar pasar el commit — siempre.
+El candidato del bloque 12 (correr tests automático tras implementar) no se ofrece acá — ese bloque no es parte del kickoff, se ofrece de nuevo cuando se active (ver Bloque 12).
 
 ## Bloque 2 — Producto y contexto
 
@@ -130,9 +151,11 @@ No es un bloque numerado — se activa justo después del bloque 1 (si el modo e
 2. "¿Qué queda deliberadamente FUERA por ahora? ¿Qué no vas a construir, aunque se te ocurra que podría ser útil más adelante?"
 
 **Bloqueante — funcionalidades de alto impacto, selección múltiple acotada:**
-3. "¿El sistema va a incluir algo de esto?" — Pagos o cobros · Notificaciones automáticas (email/SMS/push) · Procesos que tardan o corren en segundo plano (reportes pesados, archivos grandes) · Nada de esto. (Estas tres cambian decisiones de arquitectura más adelante, por eso se preguntan siempre.) Si marca notificaciones automáticas o integraciones con servicios externos (Slack, email, CRMs), se puede mencionar n8n-mcp como opción para automatizar esos workflows — sugerencia opcional, no obligatoria.
+3. "¿El sistema va a incluir algo de esto?" — Pagos o cobros · Notificaciones automáticas (email/SMS/push) · Procesos que tardan o corren en segundo plano (reportes pesados, archivos grandes) · **IA como funcionalidad para los usuarios** (distinto de usar IA como herramienta de desarrollo — esto es que el producto en sí responda preguntas, genere contenido, clasifique, etc.) · Nada de esto. (Estas cuatro cambian decisiones de arquitectura más adelante, por eso se preguntan siempre.) Si marca notificaciones automáticas o integraciones con servicios externos (Slack, email, CRMs), se puede mencionar n8n-mcp como opción para automatizar esos workflows — sugerencia opcional, no obligatoria.
 
 Si marcó "pagos o cobros": "¿Es un modelo de suscripción con distintos planes (lo que técnicamente se llama SaaS), un pago único, u otra cosa?" Si es suscripción, en modo completo (pregunta 4) profundizar: ¿hay período de prueba gratuito? ¿los usuarios pueden cambiar de plan? ¿qué pasa si un pago falla o se cancela la suscripción?
+
+Si marcó "IA como funcionalidad para los usuarios": "¿Qué hace esa parte con IA? (ej. responder preguntas sobre documentos/datos propios, generar contenido, clasificar, resumir, otra cosa)." Si implica responder preguntas sobre documentos o datos propios del usuario (RAG), se puede mencionar LightRAG (framework de recuperación aumentada con grafos + vectores) como opción — sugerencia opcional, no obligatoria. Esto queda como el gate que retoman las preguntas 7.5 y 7.6 del bloque 9 (model routing, límites de costo por usuario/plan) — no se vuelve a preguntar si ya se usa IA, se retoma con callback.
 
 **Completo — resto de funcionalidades, selección múltiple:**
 4. "Además de lo anterior, ¿cuáles de estas otras funcionalidades necesita?" — Crear/editar/eliminar registros · Generar reportes o informes · Exportar datos (PDF/Excel/CSV) · Importar datos externos · Otra.
@@ -217,7 +240,7 @@ Lee `references/stack-y-datos.md` antes de este bloque — tiene la heurística 
 
 **Completo:**
 4. "¿Hay restricciones de versión que ya conozcas (ej. compatibilidad con algo que ya usas)?"
-5. Nota, no pregunta: una vez elegido el stack, documentar las versiones exactas usadas.
+5. Nota, no pregunta: una vez elegido el stack, documentar las versiones exactas usadas. Si el usuario usa Claude Code (bloque 10) y quiere sugerencias del ecosistema, se puede mencionar Context7 MCP (Upstash) como opción — trae documentación actualizada y específica de la versión de cada librería a la sesión, en vez de depender del conocimiento de entrenamiento del modelo (que causa APIs alucinadas o deprecadas), reforzando directamente la preferencia estable-vs-nuevo de la pregunta 2. Sugerencia opcional, no obligatoria.
 
 ## Bloque 8 — Auth, autorización y multi-tenancy
 
@@ -249,11 +272,11 @@ Lee `references/seguridad-e-infraestructura.md` antes de este bloque — tiene l
 
 **Completo:**
 4. **Contenedores** — no por defecto, solo si el hosting elegido lo pide o el equipo ya lo usa. Si aplica, mencionar que Docker no es la única opción (Podman, containerd, o directamente sin contenedores si el PaaS elegido lo resuelve solo) — ver referencia.
-5. Vendor lock-in — "¿qué tan fácil sería migrarte de este proveedor si en el futuro deja de convenirte?"
-6. Infrastructure as Code — nota: rara vez hace falta en proyectos chicos/medianos, solo si la infraestructura es compleja o cambia mucho.
-7. Threat modeling formal (STRIDE) — nota: casi nunca aplica, solo proyectos con datos muy sensibles (bloque 5) o escala grande. Si aplica, mencionar como opción la herramienta Strix (agente autónomo de pentesting, valida vulnerabilidades con pruebas de concepto reales) — sugerencia opcional, no obligatoria.
-7.5. **Solo si el producto en sí usa IA con varios agentes/subagentes para tareas distintas:** "¿quieres definir qué modelo usa cada uno (ej. uno más barato para generación simple, uno más capaz para razonamiento complejo)?" Documentarlo en tabla en `DOC/decisiones.md`, con la regla "no cambiar sin justificación explícita" — evita tanto gastar de más como perder calidad.
-7.6. **Solo si el uso de IA del producto debe limitarse por usuario o plan** (créditos, tokens): el descuento se hace **antes** de ejecutar la llamada a la IA, con un límite duro (ej. HTTP 429) si no alcanza — nunca confiar en un chequeo posterior a que ya se gastó.
+5. Vendor lock-in — "¿qué tan fácil sería migrarte de este proveedor si en el futuro deja de convenirte?" Se omite si tamaño (bloque 2) = "uso personal o uso ocasional" — no aporta a un proyecto que probablemente nunca cambie de proveedor.
+6. Infrastructure as Code — se omite si tamaño (bloque 2) = "uso personal o uso ocasional" o "proyecto pequeño, pocos usuarios". Rara vez hace falta salvo que la infraestructura ya sea compleja o cambie mucho.
+7. Threat modeling formal (STRIDE) — se omite salvo que el bloque 5 haya marcado datos sensibles reales o el tamaño (bloque 2) sea "ya tiene usuarios reales o escala conocida". Si aplica, mencionar como opción la herramienta Strix (agente autónomo de pentesting, valida vulnerabilidades con pruebas de concepto reales) — sugerencia opcional, no obligatoria.
+7.5. **Solo si en el bloque 3 se marcó "IA como funcionalidad para los usuarios" y hay varios agentes/subagentes para tareas distintas** (retomar con callback, no volver a preguntar si ya usa IA): "¿quieres definir qué modelo usa cada uno (ej. uno más barato para generación simple, uno más capaz para razonamiento complejo)?" Documentarlo en tabla en `DOC/decisiones.md`, con la regla "no cambiar sin justificación explícita" — evita tanto gastar de más como perder calidad.
+7.6. **Solo si en el bloque 3 se marcó "IA como funcionalidad para los usuarios" y debe limitarse por usuario o plan** (créditos, tokens): el descuento se hace **antes** de ejecutar la llamada a la IA, con un límite duro (ej. HTTP 429) si no alcanza — nunca confiar en un chequeo posterior a que ya se gastó.
 8. **Checklist de seguridad mínima** — nota para Claude, no pregunta uno por uno, pero verificar que se cumpla al implementar (ver `references/seguridad-e-infraestructura.md` para el detalle de cada punto): rate limiting, IP limiting donde corresponda, secretos fuera del código, sanitización de inputs, validación server-side (nunca confiar solo en la del cliente), RLS con deny-by-default (aplica aunque no haya multi-tenancy), cifrado en tránsito (HTTPS siempre) y en reposo para datos sensibles, sesiones con expiración, y CORS configurado explícitamente (nunca `*` en producción para endpoints con datos de usuarios).
 
 ## Bloque 10 — Git, ambientes, CI/CD, convenciones de código
@@ -262,7 +285,10 @@ Lee `references/git-y-cicd.md` antes de este bloque — tiene la comparación Gi
 
 **Bloqueantes:**
 1. "¿Cuántas personas van a trabajar en este proyecto (contándote a ti)?"
-1.5. "¿Quieres seguir una metodología formal de trabajo (Scrum, Kanban), o nada en particular?" Si es Scrum, se desbloquea más adelante (cierre del kickoff): Product Goal, organización en sprints con su Sprint Goal, y Definition of Done por sprint además de la general del bloque 12.
+1.6. "¿Qué herramienta de IA vas a usar para trabajar en este proyecto — Claude Code, u otra (Cursor, Antigravity, Copilot, Gemini CLI, etc.)? Si hay más de una persona, ¿todos usan la misma?" No depende de la cantidad de personas (pregunta 1) — aplica igual a un proyecto de una sola persona. Determina qué archivo de guardrails se genera al cerrar el bloque 11 — ver Transversal, sección de guardrails.
+
+**Solo si usa Claude Code (aunque sea parcial):** "¿Quieres que te vaya sugiriendo recursos del ecosistema de Claude Code (skills/plugins) cuando calcen con lo que necesitas?" Si acepta, mencionar cuando surja la ocasión (no en un momento fijo): Task Observer (útil si usa esta misma skill en varios proyectos con el tiempo, meta-skill que observa sesiones y sugiere qué convertir en skill nueva) y las colecciones awesome-claude-code (punto de partida si pregunta por más herramientas).
+1.5. "¿Quieres seguir una metodología formal de trabajo (Scrum, Kanban), o nada en particular?" Se omite si tamaño (bloque 2) = "uso personal o uso ocasional" y la pregunta 1 de este bloque confirma una sola persona — se asume "ninguna" y se menciona de pasada por si igual la quiere. Si es Scrum, se desbloquea más adelante (cierre del kickoff): Product Goal, organización en sprints con su Sprint Goal, y Definition of Done por sprint además de la general del bloque 12.
 2. "¿Dónde va a vivir el repositorio (GitHub, GitLab, otro) y va a ser público o privado?" — si duda entre GitHub/GitLab, usar la comparación de la referencia.
 3. "¿Prefieres hacer tú los commits, o que los haga la IA (mostrándote el mensaje antes de confirmar)?"
 4. **Inmediatamente después de (3), sin excepción:** "¿Quieres que los commits mencionen el uso de IA (ej. 'Co-authored-by: Claude'), o prefieres que no se mencione?" Nunca se asume. Si en (3) se eligió que la IA haga los commits, esta pregunta se hace ahí mismo, no se deja para después.
@@ -270,8 +296,8 @@ Lee `references/git-y-cicd.md` antes de este bloque — tiene la comparación Gi
 5. **Ambientes** — propuesta razonada según tamaño (bloque 2): "Para tu tamaño, propongo [local + producción / local + staging + producción]. Además, te recomiendo que los tests automatizados usen su propia base de datos, separada de desarrollo y producción — se resetea en cada corrida y evita que una prueba corrompa datos reales. ¿De acuerdo?"
 
 **Completo:**
-6. Flujo de branches/gitflow — propuesta razonada según cantidad de personas (pregunta 1).
-7. CI/CD — herramienta según dónde vive el repo (ver referencia); "¿configuramos integración continua desde ya, o se deja para más adelante?"
+6. Flujo de branches/gitflow — propuesta razonada según cantidad de personas (pregunta 1). Si es una sola persona, se omite la pregunta y se propone directo "commits directos a main, sin flujo de ramas" — el usuario puede corregir si igual lo quiere.
+7. CI/CD — herramienta según dónde vive el repo (ver referencia); "¿configuramos integración continua desde ya, o se deja para más adelante?" Se omite si tamaño (bloque 2) = "uso personal o uso ocasional" — se asume "no por ahora, se agrega si hace falta".
 8. Convenciones de nombres — inferido del lenguaje (bloque 7), se confirma.
 9. "¿Qué tanto quieres que el código tenga comentarios explicativos?" — Mínimo (default: solo cuando el "por qué" no es obvio, no se explica el "qué") / Moderado (propósito de funciones y bloques principales) / Extenso (para aprender, documentar, o equipos con niveles dispares). Nunca asumir el default en silencio — preguntarlo, porque no todos lo prefieren igual.
 10. Identidad de git (autor vs. cuenta que hace push, firma) — nota condicional, solo si hay más de una persona o restricciones de CI/CD.
@@ -319,6 +345,8 @@ Lee `references/testing.md` antes de este bloque — tiene la pirámide de testi
 2. Si hay CI/CD (bloque 10): "¿qué debe pasar obligatoriamente antes de poder mergear/desplegar?"
 3. Ubicación/formato de los tests — inferido del stack (bloque 7), se confirma, no se pregunta desde cero.
 
+Si la plataforma (bloque 2) tiene interfaz web y se van a automatizar pruebas E2E, se puede mencionar Playwright MCP (+ el Playwright CLI complementario, ~4x menos tokens vía snapshots YAML) como opción — le da a Claude Code control de navegador real para generar/correr tests, complementa (no reemplaza) las skills `claude-in-chrome`/`run` ya disponibles en este entorno para debug del día a día. Si el debugging de esta etapa involucra procesar logs grandes, se puede mencionar también Headroom (comprime salidas de herramientas 60-95%). Ambas, sugerencia opcional, no obligatoria.
+
 **Completo:**
 4. Checklist de pruebas manuales para funcionalidades críticas (ej. login correcto/incorrecto, sesión expirada, sin conexión, doble clic) — se guarda y crece en `DOC/pruebas-manuales.md`.
 5. Definition of Done — propuesta razonada, ajustada al tamaño del proyecto — se guarda en `DOC/definition-of-done.md`.
@@ -328,6 +356,8 @@ Lee `references/testing.md` antes de este bloque — tiene la pirámide de testi
 
 Nota para Claude, no pregunta: al escribir cualquier test, que sea determinista, independiente, y pruebe comportamiento no implementación (ver referencia). Después de cada implementación, dar siempre el comando exacto para verificar que funciona (ej. `npm run test:unit -- archivo`) — no dejar que el usuario tenga que adivinarlo.
 
+**Hook diferido del cierre del kickoff:** si el usuario aceptó hooks automáticos en la Transversal (guardrails), ofrecer acá el candidato que faltaba por falta de datos en ese momento: "¿Quieres que configure también un hook que corra el comando de verificación automático después de cada implementación, en vez de tener que pedirlo cada vez?" Si no aceptó hooks en su momento, no se ofrece este tampoco — mismo criterio, no insistir con algo ya rechazado.
+
 ## Bloque 13 — Producción y operación (no es kickoff — se activa al ir a producción de verdad)
 
 **Disparador:** ofrecerlo cuando el usuario mencione ir a producción, lanzar, o pregunte si el proyecto está listo.
@@ -336,5 +366,5 @@ Nota para Claude, no pregunta: al escribir cualquier test, que sea determinista,
 1. Checklist de producción — repasa rápido lo ya resuelto en bloques anteriores (secretos, HTTPS, seguridad del bloque 9) y pregunta lo que falta: **backups** (frecuencia; advertir que un backup no cuenta hasta que se prueba restaurarlo, no basta con que exista), **plan de rollback** si un deploy falla, **observabilidad mínima** ("¿cómo te enteras si esto se cae?", no solo "¿funciona?"). El plan de backups se convierte en un **procedimiento de respaldo paso a paso** en `DOC/gestion-secretos-y-backups.md` (cómo se ejecuta el respaldo, cómo se restaura, quién lo hace) — no basta con confirmar que existe un backup, tiene que quedar escrito cómo se usa.
 
 **Completo:**
-2. RPO/RTO formal (cuánto dato se puede perder, cuánto tiempo tolera estar caído).
+2. RPO/RTO formal (cuánto dato se puede perder, cuánto tiempo tolera estar caído). Se omite si tamaño (bloque 2) = "uso personal o uso ocasional".
 3. Runbook básico de incidentes, aunque sea una sola persona en el proyecto.
