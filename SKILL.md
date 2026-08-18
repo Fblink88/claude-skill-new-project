@@ -261,13 +261,14 @@ Lee `references/stack-y-datos.md` antes de este bloque — tiene la heurística 
 
 **Bloqueantes:**
 
-1. "¿Tienes preferencia o experiencia previa con algún lenguaje o framework? ¿Hay alguna restricción (ej. el equipo ya sabe X, o necesita ser compatible con algo que ya tienes)?" Si no tiene preferencia, propone según plataforma (bloque 2) + arquitectura (bloque 6) + dominio (bloque 4), con el mismo formato de propuesta razonada del bloque 6.
-2. "Al elegir versiones de lenguaje, framework y librerías, ¿priorizamos estabilidad (versiones LTS o maduras, mejor compatibilidad) o lo más nuevo (últimas funcionalidades, menos probado)?" Esta preferencia aplica desde ahora en adelante, no solo en este bloque — cada vez que se proponga una versión concreta (acá o durante la implementación), decir explícitamente si es la más estable o la más nueva, y por qué.
-3. **Tipo de base de datos** — depende de si hay servidor (bloque 6) y de las relaciones entre entidades (bloque 4). Propuesta razonada con alternativa, igual que arquitectura.
+1. **Compuerta — SEO** (solo si plataforma, bloque 2, es Web o PWA pública, y el usuario no adelantó ya preferencia de framework): "¿Es importante que esto aparezca en buscadores (SEO), o es una herramienta interna/privada donde no aplica?" Determina si conviene un framework con SSR (ej. Next.js, Nuxt) o alcanza un SPA liviano (ej. React+Vite, Vue+Vite, SvelteKit) — ver heurística en la referencia. Si el bloque 11 llega a este mismo tema, se retoma con callback en vez de volver a preguntar.
+2. "¿Tienes preferencia o experiencia previa con algún lenguaje o framework? ¿Hay alguna restricción (ej. el equipo ya sabe X, o necesita ser compatible con algo que ya tienes)?" Si no tiene preferencia, propone según plataforma (bloque 2) + arquitectura (bloque 6) + dominio (bloque 4) + SEO (pregunta 1 de este bloque), con el mismo formato de propuesta razonada del bloque 6.
+3. "Al elegir versiones de lenguaje, framework y librerías, ¿priorizamos estabilidad (versiones LTS o maduras, mejor compatibilidad) o lo más nuevo (últimas funcionalidades, menos probado)?" Esta preferencia aplica desde ahora en adelante, no solo en este bloque — cada vez que se proponga una versión concreta (acá o durante la implementación), decir explícitamente si es la más estable o la más nueva, y por qué.
+4. **Tipo de base de datos** — depende de si hay servidor (bloque 6) y de las relaciones entre entidades (bloque 4). Propuesta razonada con alternativa, igual que arquitectura.
 
 **Completo:**
-4. "¿Hay restricciones de versión que ya conozcas (ej. compatibilidad con algo que ya usas)?"
-5. Nota, no pregunta: una vez elegido el stack, documentar las versiones exactas usadas. Si el usuario usa Claude Code (bloque 10) y quiere sugerencias del ecosistema, se puede mencionar Context7 MCP (Upstash) como opción — trae documentación actualizada y específica de la versión de cada librería a la sesión, en vez de depender del conocimiento de entrenamiento del modelo (que causa APIs alucinadas o deprecadas), reforzando directamente la preferencia estable-vs-nuevo de la pregunta 2. Sugerencia opcional, no obligatoria.
+5. "¿Hay restricciones de versión que ya conozcas (ej. compatibilidad con algo que ya usas)?"
+6. Nota, no pregunta: una vez elegido el stack, documentar las versiones exactas usadas. Si el usuario usa Claude Code (bloque 10) y quiere sugerencias del ecosistema, se puede mencionar Context7 MCP (Upstash) como opción — trae documentación actualizada y específica de la versión de cada librería a la sesión, en vez de depender del conocimiento de entrenamiento del modelo (que causa APIs alucinadas o deprecadas), reforzando directamente la preferencia estable-vs-nuevo de la pregunta 2. Sugerencia opcional, no obligatoria.
 
 ## Bloque 8 — Auth, autorización y multi-tenancy
 
@@ -344,7 +345,7 @@ Lee `references/identidad-visual.md` antes de este bloque — tiene el glosario 
 5. Con la matriz ya definida, preguntar el formato de salida: "¿prefieres que arme un prototipo HTML real, o te dejo un prompt de diseño listo para pegar en una herramienta como Figma (First Draft, genera pantallas y se queda ahí para iterar) o v0 de Vercel (genera código React/Tailwind directo)?" — HTML real cuando ya se sabe el stack y sirve de referencia directa; prompt para herramienta cuando se quiere iterar el diseño antes de comprometerse a código, o lo hace otra persona del equipo.
 
 **Completo — preguntas cortas:**
-5. "¿Es importante que aparezca en buscadores (SEO), o es una herramienta interna/privada donde no aplica?" — solo si la plataforma es web pública.
+5. SEO — ya resuelto como compuerta en el bloque 7 (pregunta 1); si por algún motivo no se preguntó ahí (ej. plataforma se definió como web pública recién en este bloque), preguntarlo acá: "¿Es importante que aparezca en buscadores (SEO), o es una herramienta interna/privada donde no aplica?"
 6. "¿Hay algún requisito de accesibilidad que conozcas, o aplicamos un nivel básico por default (contraste adecuado, navegación por teclado)?"
 
 **Completo — notas para aplicar como default al implementar, no preguntar una por una:**
